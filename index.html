@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StudyScribe — Paper-style MCQ Quiz</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <script>
+      // Configure Tailwind for dark mode
+      tailwind.config = {
+        darkMode: "class", // Tailwind will look for 'dark' class on <html>
+      };
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/tailwindcss">
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      /* Configuration for Tailwind */
+      @layer base {
+        html {
+          font-family: "Inter", system-ui, sans-serif;
+        }
+        /* Apply filter to the image when <html> does *not* have the 'dark' class (i.e., light mode) */
+        html:not(.dark) .hero-illustration {
+          filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1) ; /* Adjust these values as needed for best appearance */
+          /* This filter attempts to make a dark-themed illustration suitable for a light background */
+        }
+      }
+
+      @layer components {
+        .chip.active {
+          @apply bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500;
+        }
+        .option.selected {
+          @apply border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-gray-700/60 ring-2 ring-blue-300 dark:ring-blue-500;
+        }
+        .option.selected .radio {
+          @apply bg-blue-600 border-blue-600 text-white dark:text-white dark:border-blue-500 dark:bg-blue-500;
+        }
+
+        .progress-ring .ring-bg {
+          @apply stroke-gray-200 dark:stroke-gray-700;
+        }
+        .progress-ring .ring {
+          @apply stroke-blue-500;
+          transition: stroke-dashoffset 0.9s cubic-bezier(0.2, 0.9, 0.2, 1);
+        }
+
+        .panel-enter {
+          animation: slideIn 0.36s ease both;
+        }
+        .panel-exit {
+          animation: fadeOut 0.24s ease both;
+        }
+        @keyframes slideIn {
+          from {
+            transform: translateY(8px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes fadeOut {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        .details-arrow {
+          @apply transition-transform duration-200 ease-in-out;
+        }
+        details:not([open]) summary .details-arrow {
+          transform: rotate(-90deg);
+        }
+        details[open] summary .details-arrow {
+          transform: rotate(0deg);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased"
+  >
+    <main
+      class="page flex items-center justify-center min-h-[calc(100vh-4rem)] p-4 md:p-8"
+      id="app"
+      aria-live="polite"
+    >
+      <section
+        id="start-section"
+        class="card w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-10 border border-gray-200 dark:border-gray-700"
+        aria-labelledby="app-title"
+      >
+        <div class="hero flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+          <div class="hero-left flex-1 w-full">
+            <h1
+              id="app-title"
+              class="text-4xl font-bold text-blue-600 dark:text-blue-400"
+            >
+              StudyScribe
+            </h1>
+            <p class="lead text-lg text-gray-600 dark:text-gray-300 mt-2">
+              Test your knowledge and level up your skills — paper style.
+            </p>
+            <p class="muted text-sm text-gray-500 dark:text-gray-400 mt-4">
+              Answer each section on its own page. Sections A, B &amp; C map to
+              question pools.
+            </p>
+
+            <div class="label-inline font-semibold text-lg mt-8 mb-4">
+              Choose sections
+            </div>
+            <div
+              class="section-choices flex flex-wrap gap-3"
+              role="group"
+              aria-label="Select sections to include"
+            >
+              <button
+                class="chip py-2 px-5 rounded-full font-semibold border-2 border-gray-200 dark:border-gray-600 cursor-pointer transition-all duration-200 ease-in-out hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500"
+                data-sec="A"
+                aria-pressed="true"
+              >
+                Section A <small class="font-normal block opacity-80">10 Q • 10 marks</small>
+              </button>
+              <button
+                class="chip py-2 px-5 rounded-full font-semibold border-2 border-gray-200 dark:border-gray-600 cursor-pointer transition-all duration-200 ease-in-out hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500"
+                data-sec="B"
+                aria-pressed="true"
+              >
+                Section B <small class="font-normal block opacity-80">15 Q • 30 marks</small>
+              </button>
+              <button
+                class="chip py-2 px-5 rounded-full font-semibold border-2 border-gray-200 dark:border-gray-600 cursor-pointer transition-all duration-200 ease-in-out hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500"
+                data-sec="C"
+                aria-pressed="true"
+              >
+                Section C <small class="font-normal block opacity-80">1SAP Q • 30 marks</small>
+              </button>
+            </div>
+
+            <div class="actions flex flex-col sm:flex-row items-center gap-4 mt-8">
+              <button
+                id="start-btn"
+                class="btn primary w-full sm:w-auto py-3 px-8 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900"
+                aria-label="Start paper"
+              >
+                Start Paper
+              </button>
+            </div>
+
+            <small class="hint hidden"
+              >Pools: A:1–50 • B:51–100 • C:101–130. Make sure
+              <code>questions.json</code> contains the bank.</small
+            >
+          </div>
+
+          <div
+            class="hero-right hidden md:flex items-center justify-center w-64 h-64"
+            aria-hidden="true"
+          >
+            <img
+              src="image-dark.png"
+              alt="Quiz illustration"
+              class="w-full h-auto object-contain hero-illustration"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-page"
+        class="card w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-10 border border-gray-200 dark:border-gray-700"
+        hidden
+      >
+        <header
+          class="quiz-header flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700"
+          role="banner"
+        >
+          <div>
+            <div
+              id="section-title"
+              class="section-title text-2xl font-bold"
+              aria-live="polite"
+            >
+              Section A
+            </div>
+            <div
+              id="section-progress"
+              class="muted small text-sm text-gray-500 dark:text-gray-400"
+              aria-live="polite"
+            >
+              1 of 3
+            </div>
+          </div>
+          <div class="mini-progress w-36" aria-hidden="true">
+            <div
+              id="mini-progress-bar"
+              class="mini-progress-bar h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
+            >
+              <span
+                class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-500 ease-out block"
+              ></span>
+            </div>
+          </div>
+        </header>
+
+        <form id="section-form" aria-labelledby="section-title">
+          <div
+            id="section-questions"
+            class="questions-list flex flex-col gap-6"
+            aria-live="polite"
+          >
+            </div>
+        </form>
+
+        <nav
+          class="quiz-controls flex justify-between items-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"
+          role="navigation"
+          aria-label="Quiz navigation"
+        >
+          <button
+            id="prev-section-btn"
+            class="btn py-2 px-5 rounded-lg font-semibold border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            disabled
+          >
+            <span class="material-icons text-xl">chevron_left</span> Previous
+          </button>
+          <div class="controls-right">
+            <button
+              id="next-section-btn"
+              class="btn primary py-2 px-5 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900"
+            >
+              Next Section <span class="material-icons text-xl">chevron_right</span>
+            </button>
+            <button
+              id="submit-btn"
+              class="btn primary py-2 px-5 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 dark:focus:ring-offset-gray-900"
+              hidden
+            >
+              Submit Paper
+            </button>
+          </div>
+        </nav>
+
+        <div
+          id="toast"
+          role="status"
+          aria-live="polite"
+          class="toast fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 py-3 px-6 rounded-full shadow-lg text-sm font-semibold transition-all duration-300"
+          hidden
+        ></div>
+      </section>
+
+      <section
+        id="results-section"
+        class="card w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-10 border border-gray-200 dark:border-gray-700"
+        hidden
+      >
+        <header
+          class="results-header flex flex-col-reverse sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700"
+        >
+          <div>
+            <h2 id="score-heading" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Score</h2>
+            <p
+              id="score-percent"
+              class="big-number text-4xl font-bold text-blue-600 dark:text-blue-400 mt-1"
+              aria-live="polite"
+            >
+              0 / 0 — 0%
+            </p>
+          </div>
+          <div class="score-ring w-32 h-32" aria-hidden="true">
+            <svg
+              viewBox="0 0 120 120"
+              class="progress-ring"
+              width="120"
+              height="120"
+              role="img"
+              aria-label="Score progress"
+            >
+              <circle
+                class="ring-bg"
+                cx="60"
+                cy="60"
+                r="48"
+                stroke-width="12"
+                fill="none"
+              ></circle>
+              <circle
+                id="progress-circle"
+                class="ring"
+                cx="60"
+                cy="60"
+                r="48"
+                stroke-width="12"
+                fill="none"
+                stroke-linecap="round"
+                transform="rotate(-90 60 60)"
+              ></circle>
+            </svg>
+          </div>
+        </header>
+
+        <h3 class="font-semibold text-lg mb-3">Section Breakdown</h3>
+        <div id="section-breakdown" class="breakdown space-y-2 text-gray-600 dark:text-gray-300">
+          </div>
+
+        <details id="wrong-list" open class="mt-10">
+          <summary
+            class="muted font-semibold text-lg cursor-pointer text-gray-700 dark:text-gray-300 list-none"
+          >
+            <span class="flex items-center gap-2">
+              <span class="material-icons text-xl details-arrow">expand_more</span>
+              Review: wrong / flagged questions
+            </span>
+          </summary>
+          <div id="wrong-items" class="mt-4 space-y-4">
+            </div>
+        </details>
+
+        <div class="actions flex flex-col sm:flex-row gap-4 mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button
+            id="retake-btn"
+            class="btn py-2 px-5 rounded-lg font-semibold border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-300"
+          >
+            Retake Same Paper
+          </button>
+          <button
+            id="go-start-btn"
+            class="btn primary py-2 px-5 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-900"
+          >
+            Back to Start
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
