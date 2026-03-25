@@ -69,6 +69,7 @@ function nextQuestion() {
     }
 }
 
+
 function showResults() {
     document.getElementById('quiz-page').classList.add('hidden');
     document.getElementById('result-page').classList.remove('hidden');
