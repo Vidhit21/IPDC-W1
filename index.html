@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StudyScribe — Paper-style MCQ Quiz</title>
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,6 +13,7 @@
       rel="stylesheet"
     />
 
+    <!-- Icons -->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -916,6 +918,15 @@
             <img src="image-dark.png" alt="Quiz illustration" class="hero-illustration" />
           </div>
         </div>
+
+        <button id="start-btn" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded">
+          Start Paper
+        </button>
+
+        <p class="text-xs text-gray-400 mt-4">
+          Pools: A (1–29) • B (51–80) • C (101–122)
+        </p>
+
       </section>
 
       <section class="card" id="section-page" hidden>
@@ -982,9 +993,11 @@
           <button id="retake-btn" class="btn">Retake Same Paper</button>
           <button id="go-start-btn" class="btn primary">Back to Start</button>
         </div>
+
       </section>
+
     </main>
 
-    <script src="app.js" defer></script>
+    <script src="app.js"></script>
   </body>
 </html>
