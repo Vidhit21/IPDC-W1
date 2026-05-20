@@ -7,6 +7,7 @@
 const startSection = document.getElementById('start-section');
 const sectionPage = document.getElementById('section-page');
 const resultsSection = document.getElementById('results-section');
+const allQuestionsSection = document.getElementById('all-questions-section');
 
 const startBtn = document.getElementById('start-btn');
 const chips = Array.from(document.querySelectorAll('.chip'));
@@ -21,6 +22,10 @@ const submitBtn = document.getElementById('submit-btn');
 
 const toastEl = document.getElementById('toast');
 const miniProgressBar = document.querySelector('#mini-progress-bar span');
+
+const readAllBtn = document.getElementById('read-all-btn');
+const allQuestionsList = document.getElementById('all-questions-list');
+const allBackBtn = document.getElementById('all-back-btn');
 
 const scorePercent = document.getElementById('score-percent');
 const sectionBreakdown = document.getElementById('section-breakdown');
@@ -86,11 +91,45 @@ function shuffle(arr) {
  * @param {HTMLElement} sectionEl - The section element to show.
  */
 function showSection(sectionEl) {
-  [startSection, sectionPage, resultsSection].forEach((s) => (s.hidden = true));
+  [startSection, sectionPage, resultsSection, allQuestionsSection].forEach((s) => (s.hidden = true));
   sectionEl.hidden = false;
   sectionEl.classList.remove('panel-exit');
   sectionEl.classList.add('panel-enter');
   setTimeout(() => sectionEl.classList.remove('panel-enter'), 450);
+}
+
+/**
+ * Renders the full question bank with answers for reading.
+ */
+async function showAllQuestions() {
+  await loadQuestions();
+  allQuestionsList.innerHTML = '';
+  if (!allQuestions || !allQuestions.length) {
+    allQuestionsList.innerHTML = '<div class="muted">No questions available.</div>';
+    showSection(allQuestionsSection);
+    return;
+  }
+
+  // sort by id
+  const sorted = allQuestions.slice().sort((a, b) => a.id - b.id);
+  sorted.forEach((q) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    const opts = (q.options || []).map((o, i) => {
+      const isAns = typeof q.answerIndex === 'number' && q.answerIndex === i;
+      return `<div style="padding:0.5rem; border-radius:0.5rem; background:${isAns ? '#ecfdf5' : 'transparent'}; border:1px solid ${isAns ? '#bbf7d0' : 'transparent'};">${String.fromCharCode(65 + i)}. ${escapeHtml(o)}${isAns ? ' <strong style="color:#047857">(Answer)</strong>' : ''}</div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="question-header">
+        <h3>Q${q.id}. <span style="font-weight:600">${escapeHtml(q.question)}</span></h3>
+      </div>
+      <div style="padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">${opts}</div>
+    `;
+    allQuestionsList.appendChild(card);
+  });
+
+  showSection(allQuestionsSection);
 }
 
 /**
@@ -505,3 +544,7 @@ goStartBtn.addEventListener('click', () => {
    Initialization
    ------------------------- */
 loadQuestions();
+
+// wire read-all navigation
+if (readAllBtn) readAllBtn.addEventListener('click', () => showAllQuestions());
+if (allBackBtn) allBackBtn.addEventListener('click', () => showSection(startSection));
